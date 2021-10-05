@@ -77,7 +77,7 @@ cd $ROOT_MOUNT_DIR
 cp -p root.txz $TMP_DIR
 cd $TMP_DIR
 tar Jxf root.txz
-cp -v ${ORIG_DIR}/rc.local rw/etc/rc.local
+cp ${ORIG_DIR}/rc.local rw/etc/rc.local
 rm root.txz
 tar cfJ root.txz rw
 mv root.txz $ROOT_MOUNT_DIR
