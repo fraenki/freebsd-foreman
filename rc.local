@@ -1,0 +1,27 @@
+# Foreman provisioning script
+#
+# try to fetch foreman URL via TFTP
+FOREMAN_URL=
+LFILES=`find /var/db -name 'dhclient.leases.*'`
+for LFILE in $LFILES; do
+  if [ -z "$FOREMAN_URL" -a -f "$LFILE" ]; then
+    INTERFACE=`cat $LFILE | grep -E -o 'interface .*[^;]' | head -1 | cut -d\" -f 2`
+    SERVER=`cat $LFILE | grep -E -o 'next-server .*[^;]' | head -1 | cut -d' ' -f 2`
+    if [ -n "$SERVER" -a -n "$INTERFACE" ]; then
+      MAC=`ifconfig $INTERFACE | grep -o "ether .*" | head -1 | cut -d' ' -f 2`
+      DMAC=01-`echo $MAC | sed -e 's/:/-/g'`
+      cd /tmp
+      echo "connect $SERVER
+mode binary
+get /pxelinux.cfg/$DMAC" | tftp
+      FOREMAN_URL=`grep foreman_url= /tmp/$DMAC | awk -F"foreman_url=" '{ print $2 }'`
+    fi
+  fi
+done
+
+if [ -z $FOREMAN_URL ]; then
+    FOREMAN_URL=http://foreman/unattended/provision
+fi
+
+fetch --timeout=30 --no-verify-hostname --no-verify-peer -a -m -q -o /tmp/install.sh $FOREMAN_URL
+sh /tmp/install.sh
