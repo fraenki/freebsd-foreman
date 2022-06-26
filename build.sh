@@ -49,6 +49,13 @@ fi
 MFSBSD_IMAGE="mfsbsd-${REL_MAJOR}.${REL_MINOR}-RELEASE-amd64.img"
 FOREMAN_IMAGE="FreeBSD-x86_64-${REL_MAJOR}.${REL_MINOR}-mfs.img"
 
+# handle changes to image structure in mfsbsd 13.1
+if [ 1 -eq "$(echo "${REL_MAJOR}.${REL_MINOR} > 13.0" | bc)" ]; then
+  MFSBSD_PART_NUM="p3"
+else
+  MFSBSD_PART_NUM="p2"
+fi
+
 mkdir -p $TMP_DIR
 cd $TMP_DIR
 
@@ -58,10 +65,10 @@ if ! fetch https://mfsbsd.vx.sk/files/images/${REL_MAJOR}/amd64/${MFSBSD_IMAGE};
   exit 1
 fi
 
-# mount mfbsd disk image
+# mount mfsbsd disk image
 mkdir -p $IMAGE_MOUNT_DIR $ROOT_MOUNT_DIR
 mdconfig -a -t vnode -u $IMAGE_MD_NO -f $MFSBSD_IMAGE
-mount /dev/md${IMAGE_MD_NO}p2 $IMAGE_MOUNT_DIR
+mount /dev/md${IMAGE_MD_NO}${MFSBSD_PART_NUM} $IMAGE_MOUNT_DIR
 
 # mount root filesystem
 cd $IMAGE_MOUNT_DIR
