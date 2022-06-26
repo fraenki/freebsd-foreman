@@ -31,9 +31,9 @@ In order to deploy FreeBSD servers with Foreman, the following requirements must
 Use `build.sh` to create your own images or to include a modified version of `rc.local`. The script must be run as root (on a FreeBSD server).
 
 ```
-# git clone git@github.com:fraenki/foreman-freebsd.git
-# cd foreman-freebsd
-# ./build.sh
+# git clone https://github.com/fraenki/freebsd-foreman.git
+# cd freebsd-foreman
+# ./build.sh -r 13.1
 ```
 
 ## Acknowledgement
