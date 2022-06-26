@@ -15,7 +15,7 @@ This repository contains everything needed to build a customized [mfsBSD](https:
 In order to deploy FreeBSD servers with Foreman, the following requirements must be met:
 
 * Provisioning templates for FreeBSD are already [included](https://github.com/theforeman/foreman/blob/develop/app/views/unattended/provisioning_templates/provision/freebsd_(mfsbsd)_provision.erb) in Foreman
-* A custom mfsBSD image, can be build manually (see below) or downloaded from here
+* A custom mfsBSD image, can be build manually (see below) or [downloaded from here](https://github.com/fraenki/freebsd-foreman/releases)
 * A working PXE/DHCP/TFTP boot environment (Foreman Smart Proxy)
 * Server or VM needs at least 1 GB of RAM to store the image during installation
 
