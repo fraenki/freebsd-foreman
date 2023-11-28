@@ -10,6 +10,8 @@
 
 This repository contains everything needed to build a customized [mfsBSD](https://mfsbsd.vx.sk/) image that can be used to provision [FreeBSD](https://www.freebsd.org/) servers with [Foreman](https://theforeman.org/).
 
+Also check out [unattended upgrades for FreeBSD](https://github.com/fraenki/f-upgrade).
+
 ## Requirements
 
 In order to deploy FreeBSD servers with Foreman, the following requirements must be met:
@@ -21,7 +23,7 @@ In order to deploy FreeBSD servers with Foreman, the following requirements must
 
 ## Provision Instructions
 
-* Create a "installation media" entry in Foreman for FreeBSD (use local or official mirror, i.e. `http://ftp.freebsd.org/pub/FreeBSD/releases/$arch/$major.$minor-RELEASE/`)
+* Create a "installation media" entry in Foreman for FreeBSD (use local or official mirror, e.g. `http://ftp.freebsd.org/pub/FreeBSD/releases/$arch/$major.$minor-RELEASE/`)
 * Create a new "operating system" entry in Foreman for the desired FreeBSD release
 * Copy the custom mfsBSD image to your TFTP server
 * Create a new host in Foreman, watch the FreeBSD installation begin :)
