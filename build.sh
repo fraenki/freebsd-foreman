@@ -12,6 +12,11 @@ cleanup() {
   rm -R ${TMP_DIR}/rw $IMAGE_MOUNT_DIR $ROOT_MOUNT_DIR
 }
 
+if [ $(id -u) != "0" ]; then
+  echo "ERROR: requires root privileges"
+  exit 1
+fi
+
 # handle arguments
 while [ ${#} -gt 0 ]; do
   case "${1}" in
