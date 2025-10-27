@@ -6,11 +6,17 @@ IMAGE_MD_NO=99
 IMAGE_MOUNT_DIR='/mnt/loop'
 ROOT_MD_NO=100
 ROOT_MOUNT_DIR='/mnt/mfsroot'
+CLEANUP=0
+MFSBSD_BUILD=0
+MFSBSD_DIST_DIR="${TMP_DIR}/dist"
 MFSBSD_FILENAME=''
+MFSBSD_REPO='https://github.com/mmatuska/mfsbsd.git'
+MFSBSD_CLONE_DIR="${TMP_DIR}/mfsbsd"
+FREEBSD_MIRROR='https://download.freebsd.org/ftp/releases/amd64'
 
 cleanup() {
   cd $TMP_DIR
-  rm -R ${TMP_DIR}/rw $IMAGE_MOUNT_DIR $ROOT_MOUNT_DIR
+  rm -R ${TMP_DIR}/rw $MFSBSD_DIST_DIR $MFSBSD_CLONE_DIR $IMAGE_MOUNT_DIR $ROOT_MOUNT_DIR 2>/dev/null
 }
 
 if [ $(id -u) != "0" ]; then
@@ -21,6 +27,14 @@ fi
 # handle arguments
 while [ ${#} -gt 0 ]; do
   case "${1}" in
+  -b)
+    MFSBSD_BUILD=1
+    shift
+    ;;
+  -c)
+    CLEANUP=1
+    shift
+    ;;
   -f)
     if ! test -e ${2}; then
       echo "Specified mfsBSD file not found: ${2}"
@@ -43,6 +57,16 @@ while [ ${#} -gt 0 ]; do
   esac
   shift 1
 done
+
+mkdir -p $TMP_DIR $MFSBSD_DIST_DIR
+cd $TMP_DIR
+
+if [ "${CLEANUP}" == 1 ]; then
+  echo "Cleaning up..."
+  cleanup
+  echo "Exiting."
+  exit 0
+fi
 
 if [ ! -e "${ORIG_DIR}/rc.local" ]; then
   echo "Custom rc.local not found."
@@ -70,18 +94,54 @@ else
   MFSBSD_PART_NUM="p2"
 fi
 
-mkdir -p $TMP_DIR
-cd $TMP_DIR
-
 # download mfsbsd image
-if [ -z "${MFSBSD_FILENAME}" ]; then
-  if ! fetch https://mfsbsd.vx.sk/files/images/${REL_MAJOR}/amd64/${MFSBSD_IMAGE}; then
-    echo "Failed to download mfsbsd image"
-    exit 1
+if [ "${MFSBSD_BUILD}" == '0' ]; then
+  if [ -z "${MFSBSD_FILENAME}" ]; then
+    echo "Downloading mfsBSD image... (please wait)"
+    if ! fetch https://mfsbsd.vx.sk/files/images/${REL_MAJOR}/amd64/${MFSBSD_IMAGE}; then
+      echo "Failed to download mfsbsd image"
+      exit 1
+    fi
+  else
+    # use specified file instead
+    MFSBSD_IMAGE=$MFSBSD_FILENAME
   fi
 else
-  # use specified file instead
-  MFSBSD_IMAGE=$MFSBSD_FILENAME
+  echo "Building mfsBSD image... (please wait)"
+
+  # get distribution files
+  for dist in base kernel; do
+    if ! fetch -o ${MFSBSD_DIST_DIR}/${dist}.txz ${FREEBSD_MIRROR}/${REL_MAJOR}.${REL_MINOR}-RELEASE/${dist}.txz; then
+      echo "Failed to download distribution files"
+      exit 1
+    fi
+  done
+
+  # prepare mfsbsd build
+  if [ ! -d "${MFSBSD_CLONE_DIR}" ]; then
+    if ! git clone $MFSBSD_REPO $MFSBSD_CLONE_DIR; then
+      echo "Failed to clone mfsbsd git repo"
+      exit 1
+    fi
+  fi
+  cd $MFSBSD_CLONE_DIR
+  for file in conf/*.sample; do
+    if ! mv "$file" "${file%.sample}"; then
+      echo "Failed to prepare mfsbsd conf files"
+      exit 1
+    fi
+  done
+
+  # build
+  make BASE=$MFSBSD_DIST_DIR
+
+  # output file
+  for image in ${MFSBSD_CLONE_DIR}/mfsbsd-${REL_MAJOR}.${REL_MINOR}-*.img; do
+    echo "Successfully built mfsbsd image: ${image}"
+    MFSBSD_IMAGE=$image
+    break
+  done
+  cd $TMP_DIR
 fi
 
 # mount mfsbsd disk image

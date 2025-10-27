@@ -47,6 +47,20 @@ To use a local copy of the mfsbsd image instead of having the script download it
 ./build.sh -r 14.3 -f downloads/mfsbsd-14.3-RELEASE-p3-amd64.img
 ```
 
+If no mfsBSD image is available for download, the script can try to automatically build it for the specified FreeBSD release:
+
+```
+./build.sh -r 14.3 -b
+```
+
+Please note that building mfsBSD requires more diskspace and will automatically install all required dependencies. Refer to [mfsBSD build instructions](https://github.com/mmatuska/mfsbsd/blob/master/BUILD.md) for further information.
+
+Cleanup build/tmp directories:
+
+```
+./build.sh -c
+```
+
 ## Acknowledgement
 
 Thanks to Martin Matuška for creating [mfsBSD](https://mfsbsd.vx.sk/) and his talk on [Deploying FreeBSD systems with Foreman](https://blog.vx.sk/archives/60).
