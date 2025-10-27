@@ -4,6 +4,7 @@
 1. [Requirements](#requirements)
 1. [Provision Instructions](#provision-instructions)
 1. [Build Instructions](#build-instructions)
+1. [More Examples](#more-examples)
 1. [Acknowledgement](#acknowledgement)
 
 ## About
@@ -35,7 +36,15 @@ Use `build.sh` to create your own images or to include a modified version of `rc
 ```
 # git clone https://github.com/fraenki/freebsd-foreman.git
 # cd freebsd-foreman
-# ./build.sh -r 13.1
+# ./build.sh -r 14.2
+```
+
+## More Examples
+
+To use a local copy of the mfsbsd image instead of having the script download it, just specify the filename:
+
+```
+./build.sh -r 14.3 -f downloads/mfsbsd-14.3-RELEASE-p3-amd64.img
 ```
 
 ## Acknowledgement

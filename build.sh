@@ -6,6 +6,7 @@ IMAGE_MD_NO=99
 IMAGE_MOUNT_DIR='/mnt/loop'
 ROOT_MD_NO=100
 ROOT_MOUNT_DIR='/mnt/mfsroot'
+MFSBSD_FILENAME=''
 
 cleanup() {
   cd $TMP_DIR
@@ -20,6 +21,14 @@ fi
 # handle arguments
 while [ ${#} -gt 0 ]; do
   case "${1}" in
+  -f)
+    if ! test -e ${2}; then
+      echo "Specified mfsBSD file not found: ${2}"
+      exit 1
+    fi
+    MFSBSD_FILENAME=$2
+    shift
+    ;;
   -r)
     if ! echo ${2} | grep -qE '^[0-9]+\.[0-9]+$'; then
       echo "Invalid FreeBSD release specified"
@@ -65,9 +74,14 @@ mkdir -p $TMP_DIR
 cd $TMP_DIR
 
 # download mfsbsd image
-if ! fetch https://mfsbsd.vx.sk/files/images/${REL_MAJOR}/amd64/${MFSBSD_IMAGE}; then
-  echo "Failed to download mfsbsd image"
-  exit 1
+if [ -z "${MFSBSD_FILENAME}" ]; then
+  if ! fetch https://mfsbsd.vx.sk/files/images/${REL_MAJOR}/amd64/${MFSBSD_IMAGE}; then
+    echo "Failed to download mfsbsd image"
+    exit 1
+  fi
+else
+  # use specified file instead
+  MFSBSD_IMAGE=$MFSBSD_FILENAME
 fi
 
 # mount mfsbsd disk image
